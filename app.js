@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+const User =  require('./models/User')
+
 const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost/nodeauth', {useNewUrlParser: true})
 const db = mongoose.connection
@@ -12,8 +14,19 @@ app.use(express.json())
 app.post('/signup', async(req, res) => {
     try {
         const body = req.body
-        
+        const newUser = new User(body)
+        await newUser.save()
+
+        res.json({
+            success: true,
+            message: "User created Successfully!"
+        })
+
     } catch(e) {
+        res.status(400).json({
+            success: false,
+            message: "Invalid Inputs!"
+        })
 
     }
 })
