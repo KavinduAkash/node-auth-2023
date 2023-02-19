@@ -3,6 +3,8 @@ const app = express()
 
 const User =  require('./models/User')
 
+const jwt = require('jsonwebtoken')
+
 const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost/nodeauth', {useNewUrlParser: true})
 const db = mongoose.connection
@@ -31,19 +33,28 @@ app.post('/signup', async(req, res) => {
     }
 })
 
+const secretCode = "ijse123nodejsmodule"
+const expireAfter = 3 * 24 * 60 * 60
+
+const genToken = (user) => {
+    return jwt.sign({id: user._id, email: user.email}, secretCode, {expiresIn: expireAfter})
+}
+
 app.post('/signin', async(req, res) => {
     try {
         const body = req.body
-        // email 
-        // bcrypted password
+        
         const user = await User.loginCheck(body.email, body.password)
         console.log('USER: ', user)
 
-        // bcrypted password = password
+        // generate the token
+        const token = genToken(user)
 
         res.json({
             success: true,
-            body: null
+            body: {
+                access_token: token
+            }
         })
 
     } catch(e) {
@@ -54,8 +65,35 @@ app.post('/signin', async(req, res) => {
     }
 })
 
-app.get('/date', async(req, res) => {
+const verifyToken = (req, res, next) => {
+    let token = req.headers['authorization']
+    console.log('token > ', token)
+    if(token) {
+
+        jwt.verify(token, secretCode, (error, decodedToken) => {
+            if(error) {
+                res.status(401).json({
+                    success: false,
+                    message: "Unauthorized"
+                })
+            }
+            res.userId = decodedToken.id
+            res.userEmail = decodedToken.email
+            next()
+        })
+
+    } else {
+        res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        })
+    }
+}
+
+app.get('/date', verifyToken, async(req, res) => {
     try {
+        console.log('userId = ', res.userId)
+        console.log('userEmail = ', res.userEmail)
         res.json({
             success: true,
             body: new Date()
