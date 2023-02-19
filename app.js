@@ -10,7 +10,12 @@ db.on('open', () => console.log("Connected to the database successfully!"))
 app.use(express.json())
 
 app.post('/signup', async(req, res) => {
-    
+    try {
+        const body = req.body
+        
+    } catch(e) {
+
+    }
 })
 
 app.post('/signin', async(req, res) => {
