@@ -9,6 +9,28 @@ db.on('open', () => console.log("Connected to the database successfully!"))
 
 app.use(express.json())
 
+app.post('/signup', async(req, res) => {
+    
+})
+
+app.post('/signin', async(req, res) => {
+
+})
+
+app.get('/date', async(req, res) => {
+    try {
+        res.json({
+            success: true,
+            body: new Date()
+        })
+    } catch(e) {
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong!"
+        })
+    }
+})
+
 app.listen(3001, () => {
     console.log('Backend-server started...')
 })
