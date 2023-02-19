@@ -32,7 +32,26 @@ app.post('/signup', async(req, res) => {
 })
 
 app.post('/signin', async(req, res) => {
+    try {
+        const body = req.body
+        // email 
+        // bcrypted password
+        const user = await User.loginCheck(body.email, body.password)
+        console.log('USER: ', user)
 
+        // bcrypted password = password
+
+        res.json({
+            success: true,
+            body: null
+        })
+
+    } catch(e) {
+        res.status(400).json({
+            success: false,
+            message: "Invalid Inputs!"
+        })
+    }
 })
 
 app.get('/date', async(req, res) => {
